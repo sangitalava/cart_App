@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+
+    nav {
+      background: #333;
+      color: white;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart {
+      background: #ff5722;
+      padding: 5px 12px;
+      border-radius: 15px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .card h3 {
+      margin: 10px 0 5px;
+    }
+
+    .card p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .card button {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #007bff;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .card button.remove {
+      background: #e91e63;
+    }
+
+    .card button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <h1>Shopping App</h1>
+    <a href="checkout.html" style="color: white;text-decoration: none">Checkout</a>
+    <div class="cart">Cart: <span id="cartCount">0</span></div>
+  </nav>
+
+  <div class="container" id="products"></div>
+
+  <script>
+    const products = [
+      { id: 1, title: "T-Shirt", price: 500, image: "tshirt.webp"},
+      { id: 2, title: "Shoes", price: 1200, image: "shoes.jpg" },
+      { id: 3, title: "Bag", price: 800, image: "bag.webp" },
+      { id: 4, title: "Watch", price: 1500, image: "watch.jpg" },
+      { id: 5, title: "Headphones", price: 900, image: "headphone.jpg" },
+    ];
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    const productsDiv = document.getElementById("products");
+    const cartCount = document.getElementById("cartCount");
+
+    // Render products dynamically
+    function renderProducts() {
+      productsDiv.innerHTML = ""; // clear first
+
+      products.forEach(product => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        // check if already in cart
+        const inCart = cart.some(item => item.id === product.id);
+
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.title}">
+          <h3>${product.title}</h3>
+          <p>₹${product.price}</p>
+          <button class="${inCart ? 'remove' : ''}" onclick="toggleCart(${product.id}, this)">
+            ${inCart ? 'Remove from Cart' : 'Add to Cart'}
+          </button>
+        `;
+        productsDiv.appendChild(card);
+      });
+    }
+
+    // Toggle add/remove from cart
+    function toggleCart(id, button) {
+      const product = products.find(p => p.id === id);
+      const inCart = cart.some(item => item.id === id);
+
+      if (inCart) {
+        // remove
+        cart = cart.filter(item => item.id !== id);
+        button.textContent = "Add to Cart";
+        button.classList.remove("remove");
+      } else {
+        // add
+        cart.push(product);
+        button.textContent = "Remove from Cart";
+        button.classList.add("remove");
+      }
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+      updateCartCount();
+    }
+
+    // Update cart count in nav
+    function updateCartCount() {
+      cartCount.textContent = cart.length;
+    }
+
+    // Initial setup
+    updateCartCount();
+    renderProducts();
+  </script>
+</body>
+</html>
